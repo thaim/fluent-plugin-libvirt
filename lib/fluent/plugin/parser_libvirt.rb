@@ -14,7 +14,7 @@ module Fluent
           # record = {
           #   'msg' => 'starting up',
           #   'versions' => {
-          #     'libvert version' => '8.0.0',
+          #     'libvirt version' => '8.0.0',
           #     'package' => '1ubuntu7.1 (Christian Ehrhardt <christian.ehrhardt@canonical.com> Thu, 19 May 2022 08:14:48 +0200)',
           #     'qemu version' => '6.2.0Debian 1:6.2+dfsg-2ubuntu6.3',
           #     'kernel' => '5.15.0-41-generic',
