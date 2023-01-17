@@ -1,4 +1,6 @@
 require "helper"
+require "test-unit"
+require "fluent/test/driver/parser"
 require "fluent/plugin/parser_libvirt.rb"
 
 class LibvirtParserTest < Test::Unit::TestCase
@@ -6,7 +8,29 @@ class LibvirtParserTest < Test::Unit::TestCase
     Fluent::Test.setup
   end
 
-  test "success" do
+  CONFIG = {
+  }
+
+  test "execute qemu" do
+    d = create_driver('')
+    log = "2023-01-17 13:00:00.500+0000: starting up libvirt version: 8.0.0, package: 1ubuntu7.1 (Christian Ehrhardt <christian.ehrhardt@canonical.com> Thu, 19 May 2022 08:14:48 +0200), qemu version: 6.2.0Debian 1:6.2+dfsg-2ubuntu6.3, kernel: 5.15.0-41-generic, hostname: devserver\nLC_ALL=C \\n/usr/bin/qemu-system-x86_64 \\n-name guest=wnode04,debug-threads=on \\n-S \\n-msg timestamp=on"
+    t = event_time('2023-01-17 13:00:00.500+0000', format: '%Y-%m-%d %H:%M:%S.%L%z')
+    r = {
+      'msg' => 'starting up',
+      'versions' => {
+        'libvert version' => '8.0.0',
+        'package' => '1ubuntu7.1 (Christian Ehrhardt <christian.ehrhardt@canonical.com> Thu, 19 May 2022 08:14:48 +0200)',
+        'qemu version' => '6.2.0Debian 1:6.2+dfsg-2ubuntu6.3',
+        'kernel' => '5.15.0-41-generic',
+        'hostname' => 'devserver'
+      },
+      'env' => {'LC_ALL': 'C'},
+      'command' => '/usr/bin/qemu-system-x86_64 -name guest=testvm,debug-threads=on -S -msg timestamp=on'
+    }
+    d.instance.parse(log) do |time, record|
+      assert_equal time, t
+      assert_equal record, r
+    end
   end
 
   private
