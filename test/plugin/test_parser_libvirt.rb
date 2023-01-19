@@ -25,6 +25,7 @@ class LibvirtParserTest < Test::Unit::TestCase
       'env' => {'LC_ALL' => 'C'},
       'command' => '/usr/bin/qemu-system-x86_64 -name guest=testvm,debug-threads=on -S -msg timestamp=on'
     }
+
     d.instance.parse(log) do |time, record|
       assert_equal t, time
       assert_equal r, record
@@ -32,7 +33,9 @@ class LibvirtParserTest < Test::Unit::TestCase
   end
 
   test "full starting up event" do
-    log = "2023-01-17 13:00:00.500+0000: starting up libvirt version: 8.0.0, package: 1ubuntu7.1 (Christian Ehrhardt <christian.ehrhardt@canonical.com> Thu, 19 May 2022 08:14:48 +0200), qemu version: 6.2.0Debian 1:6.2+dfsg-2ubuntu6.3, kernel: 5.15.0-41-generic, hostname: devserver|LC_ALL=C |/usr/bin/qemu-system-x86_64 |-name guest=wnode04,debug-threads=on |-S |-msg timestamp=on"
+    d = create_driver('')
+    log = "2023-01-18 15:20:37.123+0000: starting up libvirt version: 8.0.0, package: 1ubuntu7.1 (Christian Ehrhardt <christian.ehrhardt@canonical.com> Thu, 19 May 2022 08:14:48 +0200), qemu version: 6.2.0Debian 1:6.2+dfsg-2ubuntu6.3, kernel: 5.15.0-41-generic, hostname: devserver\\LC_ALL=C \\PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin \\/usr/bin/qemu-system-x86_64 \\-name guest=samplevm,debug-threads=on \\-S \\-msg timestamp=on"
+    t = event_time('2023-01-18 15:20:37.123+0000')
     r = {
       'msg' => 'starting up',
       'versions' => {
@@ -42,7 +45,17 @@ class LibvirtParserTest < Test::Unit::TestCase
         'kernel' => '5.15.0-41-generic',
         'hostname' => 'devserver'
       },
+      'env' => {
+        'LC_ALL' => 'C',
+        'PATH' => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin'
+      },
+      'command' => '/usr/bin/qemu-system-x86_64 -name guest=samplevm,debug-threads=on -S -msg timestamp=on'
     }
+
+    d.instance.parse(log) do |time, record|
+      assert_equal t, time
+      assert_equal r, record
+    end
   end
 
   private
